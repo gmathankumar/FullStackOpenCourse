@@ -1,9 +1,10 @@
 import { useState } from "react"
 import personsService from '../services/persons'
 
-const PersonForm = ({ persons, setPersons }) => {
+const PersonForm = ({ persons, setPersons, handleNotification }) => {
   const [newName, setNewName] = useState('')
   const [phNumber, setPhNumber] = useState('')
+
   const onAdd = (e) => {
     e.preventDefault()
     var personObj = persons.find(p => p.name === newName)
@@ -14,10 +15,11 @@ const PersonForm = ({ persons, setPersons }) => {
         personsService.updatePerson(personObj.id, { ...personObj, number: phNumber })
           .then(res => {
             setPersons(persons.map(p => p.id === personObj.id ? res : p))
-          })
+          }).catch(handleNotification(`Information of ${newName} has already been removed from server`, 'error'))
       }
     } else {
       personsService.createPerson({ name: newName, number: phNumber }).then(res => setPersons(persons.concat(res)))
+      handleNotification(`Added ${newName}`, 'success')
     }
     setNewName('')
     setPhNumber('')
@@ -34,6 +36,7 @@ const PersonForm = ({ persons, setPersons }) => {
         <button type="submit">add</button>
       </div>
     </form>
+
   )
 }
 
